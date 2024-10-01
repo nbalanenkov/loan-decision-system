@@ -68,6 +68,9 @@ In the project directory, you can run:
 - ```npm start```: Runs the app in development mode.
 - ```npm run build```: Builds the app for production.
 - ```npm test```: Launches the test runner.
+- ```npm run lint```: Launches lint checks.
+- ```npm run lint:fix```: Fixes detected lint errors.
+- ```npm run prettier```: Applies prettier on code.
 ## API Integration
 
 Frontend communicates with backend via the following API:
