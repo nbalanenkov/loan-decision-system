@@ -67,7 +67,7 @@ public class GlobalExceptionHandlerIntTest {
     }
 
     @Test
-    public void whenPersonalCodeIsInvalid_thenErrorResponseIsSent() throws Exception {
+    public void whenPersonalCodeIsUnknown_thenErrorResponseIsSent() throws Exception {
         String personalCode = "15487128591";
         BigDecimal loanAmount = new BigDecimal("3500");
         int loanPeriod = 24;

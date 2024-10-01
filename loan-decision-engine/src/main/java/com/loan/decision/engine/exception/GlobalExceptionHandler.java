@@ -24,8 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnknownPersonalCodeException.class)
     public ResponseEntity<ErrorResponse> handleUnknownPersonalCodeException(UnknownPersonalCodeException ex) {
-        log.warn("Unknown personal code encountered. Error: {}", ex.getMessage());
-        log.error("UnknownPersonalCodeException: ", ex);
+        log.error(ex.getMessage(), ex);
         ErrorResponse errorResponse = new ErrorResponse(List.of(ex.getMessage()), HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
@@ -35,8 +34,7 @@ public class GlobalExceptionHandler {
         List<String> errorMessages = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .toList();
-        log.warn("Validation failed for request: {}, errors: {}", ex.getBindingResult().getTarget(), errorMessages);
-        log.error("Validation exception: ", ex);
+        log.error("Validation failed for request: {}, errors: {}", ex.getBindingResult().getTarget(), errorMessages);
         ErrorResponse errorResponse = new ErrorResponse(errorMessages, HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
