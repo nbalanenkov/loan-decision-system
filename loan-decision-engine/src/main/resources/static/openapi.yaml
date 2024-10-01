@@ -1,0 +1,178 @@
+openapi: 3.0.1
+info:
+  title: Loan Decision Engine API
+  description: API to handle loan decisions based on personal codes, loan amount, and loan period.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /loan-decision:
+    post:
+      summary: Get Loan Decision
+      description: Returns a loan decision based on the provided personal code, loan amount, and loan period.
+      parameters:
+        - name: personalCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: loanAmount
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: loanPeriod
+          in: query
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanRequest'
+      responses:
+        '200':
+          description: Loan decision successful
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ApprovedLoanResponse'
+                  - $ref: '#/components/schemas/RejectedLoanResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: string
+                    description: List of error messages.
+                    example:
+                      - "Personal code must be exactly 11 digits long"
+                      - "Personal code can only contain numbers"
+                      - "Loan amount must be at least 2000"
+                      - "Loan amount must not exceed 10000"
+                      - "Loan period must be at least 12 months"
+                      - "Loan period must not exceed 60 months"
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 400
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Time when the error occurred.
+                    example: "2024-10-01T12:00:00Z"
+        '404':
+          description: Unknown personal code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: string
+                    description: Error message
+                    example:
+                      - "Unknown personal code"
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 404
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Time when the error occurred.
+                    example: "2024-10-01T12:00:00Z"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: string
+                    description: List of error messages.
+                    example:
+                      - "An unexpected error occurred"
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 500
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Time when the error occurred.
+                    example: "2024-10-01T12:00:00Z"
+components:
+  schemas:
+    LoanRequest:
+      type: object
+      required:
+        - personalCode
+        - loanAmount
+        - loanPeriod
+      properties:
+        personalCode:
+          type: string
+          description: Personal code, exactly 11 digits long, containing only numbers.
+          example: "49002010976"
+        loanAmount:
+          type: number
+          format: float
+          description: The loan amount between 2000 and 10000.
+          example: 5000
+        loanPeriod:
+          type: integer
+          description: The loan period in months, between 12 and 60.
+          example: 36
+
+    LoanResponse:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum:
+            - approved
+            - rejected
+          description: Loan decision status
+          example: approved
+
+    ApprovedLoanResponse:
+      type: object
+      properties:
+       decision:
+         type: string
+         description: Loan decision
+         example: approved
+       approvedLoanAmount:
+         type: number
+         description: Approved loan amount
+         example: 5000
+       approvedLoanPeriod:
+         type: integer
+         description: Approved loan period in months
+         example: 36
+
+    RejectedLoanResponse:
+      type: object
+      properties:
+        decision:
+          type: string
+          description: Loan decision
+          example: rejected
+        reason:
+          type: string
+          description: Reason for loan rejection
+          example: "There is an active debt associated with the provided personal code"
